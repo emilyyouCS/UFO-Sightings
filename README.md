@@ -4,9 +4,9 @@ Data analysis project in R using the UFO Sightings data set on Kaggle courtesy o
 
 https://www.kaggle.com/datasets/NUFORC/ufo-sightings
 
-The object of the project was to see if there was a trends such as location, time, appearance etc.
+The objective of the project was to see if there were trends in UFO sightings such as location, time, appearance, etc.
 
-Overall, we used a combination of data cleaning, visualization, dimensionality reduction, and clustering techniques to analyze the data. We used a range of functions and packages in R to perform these tasks, including the tidyverse, lubridate, dplyr, corrplot, factoextra, dendextend, ggplot2, and others. The project provides valuable experience in data analysis and visualization using R, and demonstrates the ability to use R for a wide range of data analysis tasks.
+Overall, we used a combination of data cleaning, visualization, dimensionality reduction, and clustering techniques to analyze the data. We used a range of functions and packages in R to perform these tasks, including the tidyverse, lubridate, dplyr, corrplot, factoextra, dendextend, ggplot2, and others.
 
 Summary of the steps below:
 
