@@ -1,0 +1,168 @@
+---
+title: "MATH 4323 UFO Sightings Project" 
+output: html_notebook
+---
+
+Contents: 
+Data loading: Entire team
+Cleaning-null values: 
+Cleaning-redundant features, outliers: 
+Cleaning-converting categorical/ordinal values to numeric: 
+PCA: 
+Correlation plots, box plots: 
+Distribution plots, word cloud: 
+K-means clustering: 
+Hierarchical clustering: 
+
+Load the data into a dataframe, replace all blanks and NA with NaN, strip whitespace
+```{r}
+library(tidyverse)
+data <- read.csv("scrubbed.csv", na.strings=c(""," ","NA"), strip.white=TRUE)
+
+```
+
+View the data, 80332 obs. of  11 variables
+```{r}
+summary(data)
+str(data)
+levels(data$state)
+levels(data$country)
+```
+
+View obserations by country
+```{r}
+summary(data$country)
+```
+
+
+Drop duration in hours and minutes since we already have duration in seconds and date posted
+```{r}
+data = subset(data, select = -c(city, comments, duration..hours.min., date.posted))
+names(data)
+```
+Check number of NA and clean
+```{r}
+# is.na(data)
+sum(is.na(data))
+data<-na.omit(data)
+sum(is.na(data))
+```
+
+Convert datetime
+```{r}
+#splitting datetime
+library(lubridate)
+library(dplyr)
+#make sure datetime is formatted correctly to be split
+#make separate columns for year, month, day, and time in hours
+data <- mutate(data, datetime = mdy_hm(datetime), year_sighted = year(datetime), month_sighted = month(datetime), day_sighted = day(datetime), hour_sighted = hour(datetime))
+data
+```
+
+Boxplots for observations by time of day, month, year
+```{r}
+#time of day
+boxplot(data$hour_sighted, horizontal=TRUE, main="Time of day UFOs are seen")
+#time of month
+boxplot(data$day_sighted, horizontal=TRUE, main="Time of month (by day) UFOs are seen")
+#time of year
+boxplot(data$month_sighted, horizontal=TRUE, main="Time of year (by month) UFOs are seen")
+```
+
+```{r}
+#time of day
+d <- density(data$hour_sighted)
+plot(d, type="n", main="UFO reports by time of day (hrs)")
+polygon(d, col="green", border="gray")
+#time of month
+d <- density(data$day_sighted)
+plot(d, type="n", main="UFO reports by day of the month")
+polygon(d, col="green", border="gray")
+#time of year
+d <- density(data$month_sighted)
+plot(d, type="n", main="UFO reports by month")
+polygon(d, col="green", border="gray")
+```
+
+Scale the data and convert it to a numeric matrix, 66516, 14 columns
+```{r}
+numeric_matrix <-scale(data.matrix(data))
+# numeric_matrix
+summary(numeric_matrix)
+str(numeric_matrix)
+```
+
+Correlation plot
+```{r}
+library(corrplot)
+corrplot(cor(numeric_matrix), method="color", addCoef.col = "black",  tl.col="black", tl.srt=45)
+```
+
+PCA 
+```{r}
+library(factoextra)
+
+res.pca <-princomp(numeric_matrix, cor = FALSE, scores = TRUE)
+summary(res.pca)
+```
+```{r}
+fviz_eig(res.pca)
+
+```
+
+
+Hierarchical clustering with complete, average, single linkage
+```{r}
+library(dendextend)
+df_sample<-sample_n(data, 100)
+sample <-scale(data.matrix(df_sample))
+
+```
+
+Hierarchical clustering with complete linkage
+```{r}
+fviz_nbclust(sample, FUN = hcut, method = "silhouette", nstart=20)
+```
+
+
+```{r}
+complete <- hclust(dist(sample))
+plot(complete)
+rect.hclust(complete , k = 2, border = 2:8)
+
+```
+
+
+```{r}
+single <- hclust(dist(sample), method = "single")
+plot(single)
+rect.hclust(single , k = 2, border = 2:8)
+```
+
+
+```{r}
+average <- hclust(dist(sample), method = "average")
+plot(average)
+rect.hclust(average , k = 2, border = 2:8)
+```
+
+
+k-means clustering
+```{r}
+# determine optimal number of clusters
+fviz_nbclust(sample, kmeans, method = "silhouette")
+# ok that said k=1 so im ignoring it
+```
+
+
+```{r}
+# k-means cluster
+km.out <- eclust(kclust_data, FUNcluster="kmeans", k=3, nstart=20)
+
+```
+
+```{r}
+
+plot(kclust_data, col=km.out$cluster, main="K-Means Clustering Results with K=3", pch=20, cex=2)
+```
+
